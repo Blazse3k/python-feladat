@@ -1,0 +1,77 @@
+import os
+import requests
+
+# Fájl elérési útja
+file_path = 'fizikusok.txt'
+
+# Fizikusok adatainak tárolására szolgáló lista
+fizikusok = []
+
+# Fizikusok adatainak beolvasása a fájlból
+def beolvas_adatokat():
+    with open(file_path, 'r') as file:
+        for line in file:
+            sor = line.strip().split(',')
+            fizikus = {
+                'neve': sor[0],
+                'felfedezes': sor[1],
+                'evszam': int(sor[2])
+            }
+            fizikusok.append(fizikus)
+
+# Fizikusok adatainak listázása
+def listaz_adatokat():
+    for fizikus in fizikusok:
+        print(f"{fizikus['neve']} - {fizikus['felfedezes']} - {fizikus['evszam']}")
+
+# Legkorábbi, legkésőbbi és átlagos évszámok meghatározása
+def evszamok_statisztikaja():
+    korai = min(fizikusok, key=lambda x: x['evszam'])
+    keszi = max(fizikusok, key=lambda x: x['evszam'])
+    atlag = sum(fizikus['evszam'] for fizikus in fizikusok) / len(fizikusok)
+    return korai, keszi, atlag
+
+# Fizikusok adatainak keresése név alapján
+def keres_nevet(nev):
+    for fizikus in fizikusok:
+        if fizikus['neve'].lower() == nev.lower():
+            return fizikus['felfedezes'], fizikus['evszam']
+    return None, None
+
+# Fizikusok adatainak beolvasása
+beolvas_adatokat()
+
+# Menü
+while True:
+    print("\n1. Listázás")
+    print("2. Keresés név alapján")
+    print("3. Statisztikák")
+    print("4. Kép letöltése")
+    print("5. Kilépés")
+    valasztas = int(input("Válasszon: "))
+
+    if valasztas == 1:
+        listaz_adatokat()
+    elif valasztas == 2:
+        nev = input("Adja meg a fizikus nevét: ")
+        felfedezes, evszam = keres_nevet(nev)
+        if felfedezes:
+            print(f"{nev} - {felfedezes} - {evszam}")
+        else:
+            print("Nincs ilyen nevű fizikus!")
+    elif valasztas == 3:
+        korai, keszi, atlag = evszamok_statisztikaja()
+        print(f"Legkorábbi évszám: {korai['evszam']} ({korai['neve']} - {korai['felfedezes']})")
+        print(f"Legkésőbbi évszám: {keszi['evszam']} ({keszi['neve']} - {keszi['felfedezes']})")
+        print(f"Átlagos évszám: {atlag}")
+    elif valasztas == 4:
+        nev = input("Adja meg a fizikus nevét: ")
+        felfedezes, evszam = keres_nevet(nev)
+        if felfedezes:
+            kep_url = f"https://upload.wikimedia.org/wikipedia/commons/{felfedezes.replace(' ', '_')}.jpg"
+            response = requests.get(kep_url)
+            if response.status_code == 200:
+                with open(f"{nev}.jpg", 'wb') as file:
+                    file.write(response.content)
+                print(f"Kép sikeresen letöltve: {nev}.jpg")
+            else

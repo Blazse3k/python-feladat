@@ -1,0 +1,73 @@
+import requests
+import json
+
+# Load data from file
+def load_data_from_file(filename):
+    with open(filename, 'r') as file:
+        data = json.load(file)
+    return data
+
+# Display all data
+def display_all_data(data):
+    print("\nHere is a list of all the data in our database:")
+    print("| Physicist          | Discovery            | Year  |")
+    print("|--------------------|---------------------|-------|")
+    for physicist in data:
+        print(f"| {physicist['name']}       | {physicist['discovery']} | {physicist['year']}  |")
+
+# Show statistics
+def show_statistics(data):
+    years = [physicist['year'] for physicist in data]
+    print("\nHere are some statistics about the discovery years:")
+    print(f"- Earliest discovery year: {min(years)}")
+    print(f"- Latest discovery year: {max(years)}")
+    print(f"- Average discovery year: {sum(years) / len(years)}")
+
+# Look up physicist
+def look_up_physicist(data, name):
+    for physicist in data:
+        if physicist['name'].lower() == name.lower():
+            return f"{physicist['name']} discovered {physicist['discovery']} in the year {physicist['year']}."
+    return f"No physicist named {name} was found in the database."
+
+# Display physicist image
+def display_physicist_image(name):
+    url = f"https://example.com/{name.lower().replace(' ', '-')}.jpg"
+    response = requests.get(url)
+    if response.status_code == 200:
+        print(f"Here is an image of {name}:")
+        print(f"![]({url})")
+    else:
+        print(f"No image was found for {name}.")
+
+# Main program
+def main():
+    data = load_data_from_file('physicists.json')
+    while True:
+        print("\nPlease choose from the following options:")
+        print("1. Load data from file")
+        print("2. Display all data")
+        print("3. Show statistics")
+        print("4. Look up physicist")
+        print("5. Display physicist image")
+        print("[x] Exit")
+        choice = input("> ")
+        if choice == '1':
+            print("Data has been loaded successfully!")
+        elif choice == '2':
+            display_all_data(data)
+        elif choice == '3':
+            show_statistics(data)
+        elif choice == '4':
+            name = input("Please enter the name of the physicist you would like to look up: ")
+            print(look_up_physicist(data, name))
+        elif choice == '5':
+            name = input("Please enter the name of the physicist you would like to see an image of: ")
+            display_physicist_image(name)
+        elif choice == '[x]':
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+if __name__ == "__main__":
+    main()
